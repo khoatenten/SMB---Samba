@@ -27,14 +27,67 @@ Create this folder by using the mkdir command. By using the tilde (~) symbol, we
 ```bash
 mkdir ~/shared
 ```
-⚠️ Ensure that you don’t use “sudo” to create any directories you want shared. A directory created using “sudo” will be owned by the root user.
-If you use sudo, you will need to use the chown command to give ownership of that directory to your actual user.
+  ⚠️ Ensure that you don’t use “sudo” to create any directories you want shared. A directory created using “sudo” will be owned by the root user.
+  If you use sudo, you will need to use the chown command to give ownership of that directory to your actual user.
 ## Configuring Samba on your Linux.
 ### 4: Now we can share this folder using the Samba software. To do this, we need to modify the samba config file.
-The “smb.conf” configuration file is where you will store all your settings for your shares.
-We can begin modifying the config file by using the nano text editor.
+  The “smb.conf” configuration file is where you will store all your settings for your shares.
+  We can begin modifying the config file by using the nano text editor.
 ```bash
 sudo nano /etc/samba/smb.conf
 ```
+### 5: Within this file, add the following to the bottom. This text defines various details of our share.
+For this example to work, ensure that you replace “<USERNAME>” with the name of your user.
+
+```bash
+[nameshare]
+path = /home/<USERNAME>/shared
+writeable = yes
+browseable = yes
+public = no
+```
+[Nameshare] – This block defines the start of a new Samba share. The text between the square brackets ([.]) is the name that will be assigned to your share.
+
+For example, by setting our share name to “pimylifeupshare” we would be able to access this by going to: “\\192.168.1.1\nameshare“.
+path – Use this option to specify the path of the directory you want to share using Samba on your linux.
+writeable – When this option is set to “yes“, it will allow the folder to be writable.
+
+If you want to block users from being able to write to this share, set this to “no“.
+browseable – The browsable option allows you to control whether this share will be viewable by others on your network. Setting this option to “yes” will allow others to find this share on your network.
+
+By setting this option to “no“, you will be required to enter the share path to connect to it.
+public – If this is set to “no” the Linux will require a connection to have a valid user to access the Samba share.
+### 6: With the changes made to the file, you can now go ahead and save it by pressing CTRL + X then Y followed by ENTER.
+## Setting up a User to Access your Samba Shares
+### 7. Next, we need to set up a user for our Samba share on the Linux. Without it, we won’t be able to make a connection to the shared network drive
+To assign a Samba password to your user we will need to utilize the “password” tool. Use the command below to set a password for your user, replace “<USERNAME>” with the name of your user.
+```bash
+sudo smbpasswd -a <USERNAME>
+```
+### 8: You will now be prompted to type in a new SMB password for your user.
+```bash
+New SMB password:
+Retype new SMB password:
+```
+### 9: If you see the following message, then you can tell that you have successfully added an SMB password to your user.
+You will be using this username and password to connect to your shares.
+```bash
+Added user USERNAME
+```
+### 10: Finally, before we connect to our linux Samba share, we need to restart the samba service so that it loads in our configuration changes.
+```bash
+sudo systemctl restart smbd
+```
+### 11: The last thing we should do before we try connecting to our Samba share is to retrieve our linux’s local IP address.
+First, make sure you’re connected to a network by either connecting Ethernet cable or setup WiFi.
+While you can connect using the name’s network name, we will grab the IP address just in case that option fails to work on your home network.
+Run the command below to print out the name’s local IP Address.
+```bash
+hostname -I
+```
+
+
+
+
 
 
